@@ -1,41 +1,32 @@
+use crate::needle_ffi;
 use crate::tools;
-use std::process::Command;
+use std::sync::Once;
 
 pub struct ToolResult {
     pub tool: String,
     pub output: String,
 }
 
-// Store last model confidence/reasoning for lib.rs
 static mut LAST_CONFIDENCE: f32 = 0.0;
 static mut LAST_REASONING: Option<String> = None;
+static INIT: Once = Once::new();
+
+fn ensure_init() {
+    INIT.call_once(|| {
+        let tools_json = std::fs::read_to_string("src-tauri/tools.json")
+            .or_else(|_| std::fs::read_to_string("tools.json"))
+            .or_else(|_| std::fs::read_to_string("/home/rythamo/from rahul laptop/development/just do it for fun/needle/src-tauri/tools.json"))
+            .unwrap_or("[]".to_string());
+        let _ = needle_ffi::init(&tools_json, Some("src-tauri/tools.idx"));
+    });
+}
 
 fn call_model(query: &str) -> Option<(Vec<(String, serde_json::Value)>, f32, String)> {
-    let candidates = [
-        "src-tauri/binaries/needle-x86_64-unknown-linux-gnu",
-        "src-tauri/binaries/needle",
-        "binaries/needle-x86_64-unknown-linux-gnu",
-        "/home/rythamo/from rahul laptop/development/just do it for fun/needle/src-tauri/binaries/needle-x86_64-unknown-linux-gnu",
-    ];
-    let bin = candidates.iter().find(|p| std::path::Path::new(p).exists())?;
-    let tools_path = if std::path::Path::new("src-tauri/tools.json").exists() {
-        "src-tauri/tools.json"
-    } else if std::path::Path::new("tools.json").exists() {
-        "tools.json"
-    } else {
-        "/home/rythamo/from rahul laptop/development/just do it for fun/needle/src-tauri/tools.json"
-    };
-
-    let output = Command::new(bin)
-        .args(["--tools", tools_path, "--tool-index", "src-tauri/tools.idx", "--prompt", query])
-        .output()
-        .ok()?;
-
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let v: serde_json::Value = serde_json::from_str(&stdout).ok()?;
+    ensure_init();
+    needle_ffi::reset();
+    let v = needle_ffi::complete(query, 256)?;
     let confidence = v.get("confidence").and_then(|c| c.as_f64()).unwrap_or(0.0) as f32;
     let reasoning = v.get("reasoning").and_then(|r| r.as_str()).unwrap_or("").to_string();
-
     let calls = v.get("function_calls")?.as_array()?;
     let mut result = Vec::new();
     for call in calls {

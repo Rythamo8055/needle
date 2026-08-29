@@ -1,4 +1,5 @@
 mod needle;
+mod needle_ffi;
 mod tools;
 
 use serde::Serialize;
