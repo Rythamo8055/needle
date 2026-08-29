@@ -95,12 +95,37 @@ All tools tested successfully. The model correctly selects the right tool based 
 1. **Start with the Python package on laptop** — easier to iterate and debug before moving to edge devices.
 2. **Binary approach for mobile** — the Python package has dependencies that may not work on all phone architectures, so binary is the way to go for mobile.
 3. **Tool-calling focus** — we won't use Needle 2 for chat/coding. It's purpose-built for tool selection from a defined set.
+4. **Build a lightweight Linux system info tool** — the core idea: ask in plain English ("what is my battery health", "how much trash do I have"), get answers from hidden system info only accessible via terminal commands.
+
+### What We've Done So Far
+
+- [x] Researched Needle 2 capabilities and use cases
+- [x] Created GitHub repo
+- [x] Initialized devlog
+- [x] Set up local dev environment with `cactus-needle`
+- [x] Run a basic tool-calling demo on laptop
+- [x] Build a tools.json for our experiments
+- [x] Test retrieval with 10 tools — works correctly
+- [ ] Build the lightweight Linux info tool (core app)
+- [ ] Add multi-tool call support (chain multiple tools per query)
+- [ ] Add system info tools: battery, trash size, temp, disk health, etc.
+- [ ] Download binary for target platform
+- [ ] Test on Android via Termux
+- [ ] Explore custom tool integration
+
+### Multi-Tool Calls
+
+Needle 2 supports multi-step agentic loops (`max_steps=8` default). You can ask:
+- "what time is it and how much disk space" → calls `get_time` + `disk_usage`
+- "memory usage, hostname, and uptime" → calls 3 tools in sequence
+
+The model chains tool calls automatically based on the prompt.
 
 ### Next Steps
 
-- Install `cactus-needle` and run a minimal tool-calling example
-- Define a `tools.json` with 3-4 simple tools (time, disk usage, memory, file listing)
-- Write a wrapper script that routes tool calls to actual system commands
+- Build the core Linux info tool with 15-20 system tools
+- Package it as a single command: `needle-ask "what is my battery health"`
+- Add trash size, CPU temp, disk health, GPU info, etc.
 
 ---
 

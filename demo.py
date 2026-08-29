@@ -29,8 +29,10 @@ def memory_usage():
 
 
 @needle.tool
-def list_files(path: str):
+def list_files(path: str = "."):
     """List files in a directory."""
+    if path in ("current_directory", "current dir", "here"):
+        path = "."
     entries = os.listdir(path)
     return "\n".join(entries)
 
