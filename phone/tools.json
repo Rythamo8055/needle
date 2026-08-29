@@ -1,0 +1,40 @@
+[
+  {
+    "name": "text_to_speech",
+    "description": "Use text-to-speech to speak a message aloud",
+    "parameters": [
+      {
+        "name": "text",
+        "type": "string",
+        "description": "The text to speak"
+      }
+    ]
+  },
+  {
+    "name": "battery_status",
+    "description": "Get the current battery status of the phone",
+    "parameters": []
+  },
+  {
+    "name": "vibrate",
+    "description": "Vibrate the phone for a specified duration",
+    "parameters": [
+      {
+        "name": "duration",
+        "type": "integer",
+        "description": "Duration in milliseconds"
+      }
+    ]
+  },
+  {
+    "name": "set_volume",
+    "description": "Set the phone volume to a specific level",
+    "parameters": [
+      {
+        "name": "level",
+        "type": "integer",
+        "description": "Volume level (0-100)"
+      }
+    ]
+  }
+]

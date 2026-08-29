@@ -1,0 +1,28 @@
+[
+  {
+    "name": "get_time",
+    "description": "Get the current local date and time",
+    "parameters": []
+  },
+  {
+    "name": "disk_usage",
+    "description": "Get disk space usage for the current directory",
+    "parameters": []
+  },
+  {
+    "name": "memory_usage",
+    "description": "Get current RAM usage",
+    "parameters": []
+  },
+  {
+    "name": "list_files",
+    "description": "List files in a directory",
+    "parameters": [
+      {
+        "name": "path",
+        "type": "string",
+        "description": "Directory path to list"
+      }
+    ]
+  }
+]
