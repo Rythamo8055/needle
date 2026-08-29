@@ -34,3 +34,5 @@ dist-ssr
 *.sln
 *.sw?
 tools.idx
+src-tauri/binaries/
+src-tauri/tools.idx

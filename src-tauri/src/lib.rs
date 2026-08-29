@@ -15,31 +15,32 @@ struct AskResponse {
 fn ask(query: String) -> AskResponse {
     let results = needle::route(&query);
     let confidence = needle::confidence(&query, &results);
+    let model_reasoning = needle::reasoning();
 
     if results.is_empty() {
         return AskResponse {
             results: vec!["No matching tool found. Try: battery, trash, cpu, memory, disk, network, etc.".to_string()],
             tools: vec![],
             confidence,
-            reasoning: "No tool matched the query.".to_string(),
+            reasoning: if model_reasoning.is_empty() { "No tool matched the query.".to_string() } else { model_reasoning },
         };
     }
 
     // Check for sudo need
     for r in &results {
-        if r.output == "NEED_SUDO" {
+        if r.output == "NEED_SUDO" || r.output.contains("Authentication required") {
             return AskResponse {
-                results: vec!["NEED_SUDO".to_string()],
+                results: vec![r.output.clone()],
                 tools: vec![r.tool.clone()],
                 confidence,
-                reasoning: format!("Tool {} requires sudo.", r.tool),
+                reasoning: if model_reasoning.is_empty() { format!("Tool {} requires sudo.", r.tool) } else { model_reasoning },
             };
         }
     }
 
     let tools_used: Vec<String> = results.iter().map(|r| r.tool.clone()).collect();
     let outputs: Vec<String> = results.iter().map(|r| r.output.clone()).collect();
-    let reasoning = format!("Matched {} tool(s) for query.", tools_used.join(", "));
+    let reasoning = if model_reasoning.is_empty() { format!("Matched {} tool(s) for query.", tools_used.join(", ")) } else { model_reasoning };
 
     AskResponse {
         results: outputs,

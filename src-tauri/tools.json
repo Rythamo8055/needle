@@ -1,0 +1,93 @@
+[
+  {
+    "name": "battery_status",
+    "description": "Get battery status, percentage, and health with wear level and cycle count",
+    "parameters": []
+  },
+  {
+    "name": "trash_size",
+    "description": "Get the size of files in trash",
+    "parameters": []
+  },
+  {
+    "name": "cpu_temperature",
+    "description": "Get CPU temperature",
+    "parameters": []
+  },
+  {
+    "name": "cpu_info",
+    "description": "Get CPU model, cores, and load average",
+    "parameters": []
+  },
+  {
+    "name": "memory_usage",
+    "description": "Get RAM and swap usage",
+    "parameters": []
+  },
+  {
+    "name": "disk_usage",
+    "description": "Get disk usage for all mounted filesystems",
+    "parameters": []
+  },
+  {
+    "name": "disk_health",
+    "description": "Get disk health via S.M.A.R.T. status with full details",
+    "parameters": []
+  },
+  {
+    "name": "network_info",
+    "description": "Get network interfaces and traffic",
+    "parameters": []
+  },
+  {
+    "name": "top_processes",
+    "description": "Get top 5 processes by CPU and memory usage",
+    "parameters": []
+  },
+  {
+    "name": "process_count",
+    "description": "Get the number of running processes",
+    "parameters": []
+  },
+  {
+    "name": "uptime_info",
+    "description": "Get system uptime and boot time",
+    "parameters": []
+  },
+  {
+    "name": "hostname_info",
+    "description": "Get system hostname and kernel version",
+    "parameters": []
+  },
+  {
+    "name": "gpu_info",
+    "description": "Get GPU information",
+    "parameters": []
+  },
+  {
+    "name": "brightness",
+    "description": "Get screen brightness",
+    "parameters": []
+  },
+  {
+    "name": "list_files",
+    "description": "List files in a directory. Use when user asks to list files, show directory contents, or 'ls'",
+    "parameters": [
+      {
+        "name": "path",
+        "type": "string",
+        "description": "Directory path to list, e.g. '.' or '/tmp'"
+      }
+    ]
+  },
+  {
+    "name": "system_info",
+    "description": "Get full system information including kernel and OS details",
+    "parameters": []
+  },
+  {
+    "name": "get_time",
+    "description": "Get the current local date and time. Use when user asks what time is it, current time, or date",
+    "parameters": []
+  }
+]
