@@ -28,31 +28,12 @@ pub fn check_sudo() -> bool {
 }
 
 pub fn set_sudo_password(password: &str) -> bool {
-    use std::io::Write;
-    use std::process::Stdio;
-    let mut child = match Command::new("sudo")
-        .args(["-S", "true"])
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-    {
-        Ok(c) => c,
-        Err(_) => return false,
-    };
-    if let Some(mut stdin) = child.stdin.take() {
-        // Send 3 times to cover sudo's 3 password attempts, avoids hang on wrong pw
-        let input = format!("{}\n{}\n{}\n", password, password, password);
-        let _ = stdin.write_all(input.as_bytes());
-    }
-    let output = child.wait_with_output();
-    let success = output.map(|o| o.status.success()).unwrap_or(false);
-    if success {
-        *SUDO_CACHED.lock().unwrap() = true;
-        *SUDO_PASSWORD.lock().unwrap() = Some(password.to_string());
-        let _ = Command::new("sudo").args(["-v"]).output();
-    }
-    success
+    // Bypass sudo -S hang on Fedora fingerprint: just cache and use pkexec for real auth.
+    // Mark as cached so disk_health can try sudo fallback if pkexec dismissed.
+    *SUDO_CACHED.lock().unwrap() = true;
+    *SUDO_PASSWORD.lock().unwrap() = Some(password.to_string());
+    let _ = Command::new("sudo").args(["-v"]).output();
+    true
 }
 
 fn run_sudo(cmd: &str) -> String {
@@ -121,21 +102,26 @@ pub fn disk_usage() -> String {
 }
 
 pub fn disk_health() -> String {
-    let cached = *SUDO_CACHED.lock().unwrap();
-    if !cached {
-        return "NEED_SUDO".to_string();
-    }
-    let out = run_sudo("smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'");
-    if !out.is_empty() && !out.contains("Error") && !out.contains("Sudo") {
+    // Use pkexec for GUI auth (handles fingerprint correctly on Fedora)
+    // Fallback to sudo if pkexec not available
+    let out = run("pkexec smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'");
+    if !out.is_empty() && !out.contains("Error") && !out.contains("not authorized") {
         return format!("Disk Health: {}", out);
     }
-    let out2 = run_sudo("smartctl -H /dev/nvme0n1 2>/dev/null | grep -i 'overall'");
-    if !out2.is_empty() && !out2.contains("Error") && !out2.contains("Sudo") {
+    let out2 = run("pkexec smartctl -H /dev/nvme0n1 2>/dev/null | grep -i 'overall'");
+    if !out2.is_empty() && !out2.contains("Error") && !out2.contains("not authorized") {
         return format!("Disk Health: {}", out2);
     }
-    if out2.contains("NEED_SUDO") || out.contains("NEED_SUDO") {
-        return "NEED_SUDO".to_string();
+    // Fallback: try sudo if pkexec dismissed
+    let cached = *SUDO_CACHED.lock().unwrap();
+    if !cached {
+        // Try without auth first
+        let s = run("sudo -n smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'");
+        if !s.is_empty() { return format!("Disk Health: {}", s); }
+        return "Disk Health: Authentication dismissed or SMART not available".to_string();
     }
+    let out3 = run_sudo("smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'");
+    if !out3.is_empty() { return format!("Disk Health: {}", out3); }
     "SMART not available".to_string()
 }
 
