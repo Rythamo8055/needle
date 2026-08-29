@@ -47,10 +47,15 @@ def run_sudo(cmd: str) -> str:
     if not _sudo_cached:
         return "Sudo not authenticated"
     try:
-        result = subprocess.run(
-            cmd, shell=True, capture_output=True, text=True,
-            input=_sudo_password + "\n", timeout=10
-        )
+        if _sudo_password:
+            result = subprocess.run(
+                cmd, shell=True, capture_output=True, text=True,
+                input=_sudo_password + "\n", timeout=10
+            )
+        else:
+            result = subprocess.run(
+                cmd, shell=True, capture_output=True, text=True, timeout=10
+            )
         return result.stdout.strip() or result.stderr.strip()
     except Exception as e:
         return f"Error: {e}"
