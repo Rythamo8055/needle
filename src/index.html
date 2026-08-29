@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Needle — System Info</title>
+    <script type="module" src="/main.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Needle <span>— 45M param system assistant</span></h1>
+      <p class="subtitle">Ask in plain English · 16 tools · 28MB RAM</p>
+    </header>
+
+    <div class="search-row">
+      <input id="query" type="text" placeholder="Ask about your system… e.g. 'battery health', 'trash size', 'cpu temperature and memory'" />
+      <button id="ask-btn">Ask</button>
+    </div>
+
+    <div class="quick">
+      <button data-q="battery status">Battery</button>
+      <button data-q="trash size">Trash</button>
+      <button data-q="cpu temperature">CPU Temp</button>
+      <button data-q="memory usage">Memory</button>
+      <button data-q="disk usage">Disk</button>
+      <button data-q="disk health">Disk Health</button>
+      <button data-q="network info">Network</button>
+      <button data-q="top processes">Top Procs</button>
+      <button data-q="uptime">Uptime</button>
+      <button data-q="gpu info">GPU</button>
+      <button data-q="list files in .">Files</button>
+      <button data-q="what time is it">Time</button>
+    </div>
+
+    <div id="status" class="status">Ready · 16 tools available</div>
+
+    <div id="result" class="result">
+      <div class="placeholder">Try “battery health” or “trash size and cpu temperature”</div>
+    </div>
+
+    <!-- Sudo modal -->
+    <div id="sudo-modal" class="modal hidden">
+      <div class="modal-box">
+        <h3>Sudo Required</h3>
+        <p>This tool needs admin access. Enter your password.</p>
+        <input id="sudo-pass" type="password" placeholder="Password" />
+        <div class="modal-actions">
+          <button id="sudo-cancel">Cancel</button>
+          <button id="sudo-ok" class="primary">Unlock</button>
+        </div>
+        <p id="sudo-error" class="error hidden">Wrong password</p>
+      </div>
+    </div>
+  </body>
+</html>

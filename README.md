@@ -26,16 +26,39 @@ chmod +x needle
 ./needle --help
 ```
 
+## Tauri App (Rust + Web)
+
+```bash
+npm install
+npm run tauri dev     # run app
+npm run tauri build   # build bundle
+```
+
+- 17 system tools, sudo dialog, multi-tool support
+- Type in plain English: “battery health”, “trash size and cpu temp”
+
+## Python Demos
+
+```bash
+pip install cactus-needle
+python demo.py              # 4 tools
+python demo_many_tools.py   # 16 tools, retrieval
+```
+
 ## Project Structure
 
 ```
 needle/
-├── DEVLOG.md          # Development log & decisions
-├── tools.json         # Tool definitions for the binary
-├── demo.py            # Laptop demo script
-├── phone/
-│   ├── tools.json     # Mobile tool definitions
-│   └── demo.py        # Android/Termux script
+├── DEVLOG.md               # Development log & decisions
+├── src/                    # Tauri frontend (HTML/CSS/JS)
+├── src-tauri/              # Rust backend
+│   ├── src/tools.rs        # 17 system tools
+│   ├── src/needle.rs       # Tool router
+│   └── src/lib.rs          # Tauri commands
+├── tools.json              # Tool definitions
+├── demo.py                 # Python demo (4 tools)
+├── demo_many_tools.py      # Python demo (16 tools)
+├── phone/                  # Android/Termux
 └── README.md
 ```
 

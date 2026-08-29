@@ -128,15 +128,67 @@ The model chains tool calls automatically based on the prompt.
 - Package it as a single command: `needle-ask "what is my battery health"`
 - Add trash size, CPU temp, disk health, GPU info, etc.
 
-### Stack (Final)
+### Stack (GTK — Scrapped 2026-08-30)
 
 | Layer | Tech |
 |---|---|
-| UI | GTK4 (PyGObject) |
+| UI | GTK4 (PyGObject) — scrapped |
 | AI | Needle 2 (cactus-needle) |
 | Backend | Python + subprocess |
 | System Info | `/proc/*`, `lsblk`, `sensors`, `trash-cli` |
 | Packaging | Single script or PyInstaller binary |
+
+**Decision to scrap:** GTK was Linux-only and not multi-platform. Switched to Rust-based stack for true cross-platform support.
+
+---
+
+## Entry 1 — 2026-08-30 — Tauri 2 Migration
+
+**Status:** In Progress — Rust Multi-Platform App
+
+### Decision
+
+Scrapped the Python/GTK app. New stack is **Tauri 2** — Rust backend + web frontend. Reason:
+- True multi-platform: Linux, macOS, Windows, Android from one codebase
+- Tiny bundle size, fast, secure (uses OS webview)
+- Rust backend can directly call system commands (no Python dependency)
+- Needle 2 binary can be embedded as sidecar
+
+### New Stack (Final)
+
+| Layer | Tech |
+|---|---|
+| UI | Tauri 2 + Vanilla JS (HTML/CSS) |
+| Backend | Rust |
+| AI | Needle 2 (keyword routing now, binary sidecar next) + Rust tool router |
+| Tools | 17 Rust tools in `src-tauri/src/tools.rs` |
+| System Info | `sh -c` via `std::process::Command` |
+| Sudo | In-app modal, cached via `sudo -S` |
+| Build | `npm run tauri dev` / `npm run tauri build` |
+
+### What Changed
+
+- Removed `app.py`, `needle_core.py`, `tools.py` (Python)
+- Added `src-tauri/src/tools.rs` — 17 tools ported to Rust
+- Added `src-tauri/src/needle.rs` — tool router (keyword matching, supports multi-tool `and`)
+- Added `src-tauri/src/lib.rs` — Tauri commands: `ask`, `check_sudo`, `set_sudo`, `list_tools`
+- New frontend `src/index.html` + `src/main.js` + `src/styles.css` with search, quick buttons, sudo modal
+
+### How to Run (Tauri)
+
+```bash
+npm install
+npm run tauri dev      # dev mode with hot reload
+npm run tauri build    # production bundle
+```
+
+### Next Steps
+
+- [ ] Replace keyword router with real Needle 2 binary sidecar
+- [ ] Add 14MB needle binary to `src-tauri/binaries/`
+- [ ] Test multi-tool: “battery and trash size”
+- [ ] Package for Linux (.deb/.AppImage)
+- [ ] Test on Android via `npm run tauri android dev`
 
 ---
 
