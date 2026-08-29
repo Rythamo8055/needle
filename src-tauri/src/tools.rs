@@ -41,7 +41,9 @@ pub fn set_sudo_password(password: &str) -> bool {
         Err(_) => return false,
     };
     if let Some(mut stdin) = child.stdin.take() {
-        let _ = stdin.write_all((password.to_string() + "\n").as_bytes());
+        // Send 3 times to cover sudo's 3 password attempts, avoids hang on wrong pw
+        let input = format!("{}\n{}\n{}\n", password, password, password);
+        let _ = stdin.write_all(input.as_bytes());
     }
     let output = child.wait_with_output();
     let success = output.map(|o| o.status.success()).unwrap_or(false);
