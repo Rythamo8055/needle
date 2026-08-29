@@ -69,8 +69,6 @@ fn list_tools() -> Vec<String> {
         "disk_usage".to_string(),
         "uptime_info".to_string(),
         "hostname_info".to_string(),
-        "system_info".to_string(),
-        "get_time".to_string(),
     ]
 }
 

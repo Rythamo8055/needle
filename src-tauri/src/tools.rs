@@ -124,13 +124,3 @@ pub fn hostname_info() -> String {
     let distro = run("cat /etc/os-release 2>/dev/null | grep PRETTY_NAME | cut -d'\"' -f2");
     format!("Host: {} | Kernel: {}\nDistro: {}", host.trim(), kernel.trim(), distro.trim())
 }
-
-pub fn system_info() -> String {
-    run("uname -a")
-}
-
-pub fn get_time() -> String {
-    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap();
-    let secs = now.as_secs();
-    run(&format!("date -d @{} '+%Y-%m-%d %H:%M:%S'", secs))
-}

@@ -1,37 +1,27 @@
 [
   {
     "name": "battery_status",
-    "description": "Battery health and charge. Returns wear level, cycle count, percentage, status. Use for battery, charge, power, wear.",
+    "description": "Get battery status",
     "parameters": []
   },
   {
     "name": "disk_health",
-    "description": "Disk SMART health. Returns model, health PASSED/FAILED, temperature, percentage used, hours. Requires pkexec. Use for disk health, SMART, NVMe.",
+    "description": "Get disk health",
     "parameters": []
   },
   {
     "name": "disk_usage",
-    "description": "Disk usage. Returns df -h for mounted filesystems. Use for disk usage, free space, storage, partition.",
+    "description": "Get disk usage",
     "parameters": []
   },
   {
     "name": "uptime_info",
-    "description": "System uptime. Returns uptime -p and boot time. Use for uptime, boot time, how long running.",
+    "description": "Get uptime",
     "parameters": []
   },
   {
     "name": "hostname_info",
-    "description": "Host identity. Returns hostname, kernel version, distro. Use for hostname, host, kernel, distro, OS.",
-    "parameters": []
-  },
-  {
-    "name": "system_info",
-    "description": "Kernel system data. Returns uname -a. Use for system info, uname, kernel details.",
-    "parameters": []
-  },
-  {
-    "name": "get_time",
-    "description": "Current date and time. Returns YYYY-MM-DD HH:MM:SS. Use for time, date, clock, what time is it.",
+    "description": "Get hostname",
     "parameters": []
   }
 ]

@@ -107,5 +107,5 @@ modal.addEventListener("click", (e) => {
 
 // Init
 invoke("check_sudo").then((ok) => {
-  statusEl.textContent = ok ? "Ready · sudo cached · 7 tools · FFI 90ms" : "Ready · 7 tools (disk health needs pkexec)";
+  statusEl.textContent = ok ? "Ready · sudo cached · 5 tools · 100%" : "Ready · 5 tools (disk health needs pkexec)";
 });

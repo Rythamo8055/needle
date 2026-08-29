@@ -65,8 +65,6 @@ pub fn route(query: &str) -> Vec<ToolResult> {
             "disk_usage" => tools::disk_usage(),
             "uptime_info" => tools::uptime_info(),
             "hostname_info" => tools::hostname_info(),
-            "system_info" => tools::system_info(),
-            "get_time" => tools::get_time(),
             _ => continue,
         };
         results.push(ToolResult { tool: name, output });
