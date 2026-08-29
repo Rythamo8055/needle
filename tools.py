@@ -4,6 +4,7 @@ import needle
 
 
 _sudo_cached = False
+_sudo_password = None
 
 
 def check_sudo():
@@ -17,6 +18,42 @@ def check_sudo():
     except Exception:
         _sudo_cached = False
     return _sudo_cached
+
+
+def set_sudo_password(password: str) -> bool:
+    """Validate and cache sudo password."""
+    global _sudo_cached, _sudo_password
+    try:
+        result = subprocess.run(
+            ["sudo", "-S", "true"],
+            input=password + "\n",
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode == 0:
+            _sudo_cached = True
+            _sudo_password = password
+            # Refresh sudo timestamp
+            subprocess.run(["sudo", "-v"], capture_output=True, timeout=5)
+            return True
+    except Exception:
+        pass
+    return False
+
+
+def run_sudo(cmd: str) -> str:
+    """Run a command with sudo using cached password."""
+    if not _sudo_cached:
+        return "Sudo not authenticated"
+    try:
+        result = subprocess.run(
+            cmd, shell=True, capture_output=True, text=True,
+            input=_sudo_password + "\n", timeout=10
+        )
+        return result.stdout.strip() or result.stderr.strip()
+    except Exception as e:
+        return f"Error: {e}"
 
 
 def _run(cmd):
@@ -85,13 +122,13 @@ def disk_usage():
 
 @needle.tool
 def disk_health():
-    """Get disk health via S.M.A.R.T. status."""
+    """Get disk health via S.M.A.R.T. status. Requires sudo."""
     if not _sudo_cached:
-        return "Sudo not authenticated. Run 'sudo true' in terminal first, then restart app."
-    out = _run("sudo smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'")
-    if not out or "Error" in out:
-        out = _run("sudo smartctl -H /dev/nvme0n1 2>/dev/null | grep -i 'overall'")
-    return f"Disk Health: {out}" if out else "SMART not available"
+        return "NEED_SUDO: Run disk health with sudo"
+    out = run_sudo("sudo smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'")
+    if not out or "Error" in out or "NEED_SUDO" in out:
+        out = run_sudo("sudo smartctl -H /dev/nvme0n1 2>/dev/null | grep -i 'overall'")
+    return f"Disk Health: {out}" if out and "NEED_SUDO" not in out else "SMART not available"
 
 
 @needle.tool

@@ -70,15 +70,63 @@ class NeedleApp(Gtk.Application):
     def _check_sudo(self):
         has_sudo = tools.check_sudo()
         if not has_sudo:
-            GLib.idle_add(self._sudo_prompt)
+            GLib.idle_add(self._show_sudo_dialog)
 
-    def _sudo_prompt(self):
-        dialog = Gtk.AlertDialog()
-        dialog.set_message("Sudo Access Needed")
-        dialog.set_detail("Some tools need sudo. Run 'sudo true' in a terminal to cache your password, then restart the app.")
-        dialog.set_buttons(["OK"])
-        dialog.show(self.get_active_window())
+    def _show_sudo_dialog(self):
+        dialog = Gtk.Window(title="Sudo Password")
+        dialog.set_transient_for(self.get_active_window())
+        dialog.set_modal(True)
+        dialog.set_default_size(350, 150)
+
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        vbox.set_margin_top(12)
+        vbox.set_margin_bottom(12)
+        vbox.set_margin_start(12)
+        vbox.set_margin_end(12)
+        dialog.set_child(vbox)
+
+        label = Gtk.Label(label="Enter sudo password for privileged tools:")
+        vbox.append(label)
+
+        self.sudo_entry = Gtk.PasswordEntry()
+        self.sudo_entry.set_show_peek_icon(True)
+        self.sudo_entry.set_placeholder_text("Password")
+        self.sudo_entry.connect("activate", self._on_sudo_submit, dialog)
+        vbox.append(self.sudo_entry)
+
+        btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        btn_box.set_halign(Gtk.Align.END)
+        cancel_btn = Gtk.Button(label="Cancel")
+        cancel_btn.connect("clicked", lambda b: dialog.close())
+        ok_btn = Gtk.Button(label="OK")
+        ok_btn.add_css_class("suggested-action")
+        ok_btn.connect("clicked", self._on_sudo_submit, dialog)
+        btn_box.append(cancel_btn)
+        btn_box.append(ok_btn)
+        vbox.append(btn_box)
+
+        dialog.present()
+        self.sudo_entry.grab_focus()
         return False
+
+    def _on_sudo_submit(self, widget, dialog):
+        password = self.sudo_entry.get_text()
+        if not password:
+            return
+        self.status.set_markup('<span size="small" foreground="#888">Verifying sudo...</span>')
+        threading.Thread(target=self._validate_sudo, args=(password, dialog), daemon=True).start()
+
+    def _validate_sudo(self, password, dialog):
+        success = tools.set_sudo_password(password)
+        GLib.idle_add(self._on_sudo_result, success, dialog)
+
+    def _on_sudo_result(self, success, dialog):
+        if success:
+            self.status.set_markup('<span size="small" foreground="#4a2">Sudo cached</span>')
+            dialog.close()
+        else:
+            self.status.set_markup('<span size="small" foreground="red">Wrong password</span>')
+            self.sudo_entry.set_text("")
 
     def on_search(self, entry):
         query = entry.get_text().strip()
@@ -89,6 +137,12 @@ class NeedleApp(Gtk.Application):
         threading.Thread(target=self._run_query, args=(query,), daemon=True).start()
 
     def _run_query(self, query):
+        # Check if sudo is needed but not cached
+        sudo_needed = any(w in query.lower() for w in ["disk health", "smart", "smartctl"])
+        if sudo_needed and not tools._sudo_cached:
+            GLib.idle_add(self._show_sudo_dialog)
+            GLib.idle_add(self._update_ui, '<span foreground="#888">Enter sudo password to continue...</span>')
+            return
         try:
             response = needle_core.ask(query)
             results = response.get("results", [])
