@@ -182,8 +182,42 @@ npm run tauri dev      # dev mode with hot reload
 npm run tauri build    # production bundle
 ```
 
+### Tools (17 total)
+
+| # | Tool | Description | Sudo | Example Prompt |
+|---|---|---|---|---|
+| 1 | `battery_status` | Real wear (full/design), cycles, level, status | No | “battery health” |
+| 2 | `trash_size` | Trash folder size + file count | No | “trash size” |
+| 3 | `cpu_temperature` | CPU temp via sensors / thermal_zone | No | “cpu temperature” |
+| 4 | `cpu_info` | Model, cores, load average | No | “cpu info” |
+| 5 | `memory_usage` | RAM + swap (`free -h`) | No | “memory usage” |
+| 6 | `disk_usage` | Mounted FS usage (`df -h`) | No | “disk usage” |
+| 7 | `disk_health` | Full SMART: model, health, temp, % used, hours | Yes (pkexec) | “disk health” |
+| 8 | `network_info` | Interfaces + RX/TX | No | “network info” |
+| 9 | `top_processes` | Top 5 by CPU + memory | No | “top processes” |
+| 10 | `process_count` | Total running processes | No | “how many processes” |
+| 11 | `uptime_info` | Uptime + boot time | No | “uptime” |
+| 12 | `hostname_info` | Host, kernel, distro | No | “hostname” |
+| 13 | `gpu_info` | GPU via lspci | No | “gpu info” |
+| 14 | `brightness` | Screen backlight level | No | “brightness” |
+| 15 | `list_files` | List directory (30 entries) | No | “list files in /tmp” |
+| 16 | `system_info` | `uname -a` | No | “system info” |
+| 17 | `get_time` | Current date/time | No | “what time is it” |
+
+### Sudo Handling
+
+- Only `disk_health` needs sudo/pkexec (SMART requires root).
+- Pre-fix: `sudo -S` hung on Fedora fingerprint → stuck modal.
+- Fix: use `pkexec` (system polkit dialog handles fingerprint), fallback to `sudo -n` if cached. `set_sudo_password` now just caches, no blocking `sudo -S` call.
+
+### Real Health Update (2026-08-30)
+
+- `battery_status`: now shows wear % (3118/4211=74%), design/current/now mAh, cycles (252), manufacturer BYD.
+- `disk_health`: now shows full SMART instead of just PASSED — model PM9B1 1TB, temp 41°C, 12% used, 7474h, 221 cycles, 59TB written.
+
 ### Next Steps
 
+- [x] Show real health (wear, SMART details) — done
 - [ ] Replace keyword router with real Needle 2 binary sidecar
 - [ ] Add 14MB needle binary to `src-tauri/binaries/`
 - [ ] Test multi-tool: “battery and trash size”
