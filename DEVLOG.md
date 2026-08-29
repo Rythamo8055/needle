@@ -127,6 +127,16 @@ The model chains tool calls automatically based on the prompt.
 - Package it as a single command: `needle-ask "what is my battery health"`
 - Add trash size, CPU temp, disk health, GPU info, etc.
 
+### Stack (Final)
+
+| Layer | Tech |
+|---|---|
+| UI | GTK4 (PyGObject) |
+| AI | Needle 2 (cactus-needle) |
+| Backend | Python + subprocess |
+| System Info | `/proc/*`, `lsblk`, `sensors`, `trash-cli` |
+| Packaging | Single script or PyInstaller binary |
+
 ---
 
 *This devlog will be updated as the project progresses.*
