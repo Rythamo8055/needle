@@ -91,7 +91,6 @@ class NeedleApp(Gtk.Application):
 
         self.sudo_entry = Gtk.PasswordEntry()
         self.sudo_entry.set_show_peek_icon(True)
-        self.sudo_entry.set_placeholder_text("Password")
         self.sudo_entry.connect("activate", self._on_sudo_submit, dialog)
         vbox.append(self.sudo_entry)
 
