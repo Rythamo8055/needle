@@ -258,6 +258,12 @@ python -c "from huggingface_hub import hf_hub_download; import shutil; p=hf_hub_
 chmod +x src-tauri/binaries/needle-x86_64-unknown-linux-gnu
 ```
 
+### Cleanup (2026-08-30)
+
+- Removed keyword fallback (`match_tools` + heuristic 0.75) from `needle.rs` — now **pure model only**.
+- If model returns no `function_calls` (e.g. “what time is it” with 17 tools, conf 0.79), app shows real `No tool found` with model’s own confidence/reasoning, no fake.
+- All 17 tools remain real `sh -c` commands, no mocked data.
+
 ---
 
 *This devlog will be updated as the project progresses.*
