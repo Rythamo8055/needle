@@ -106,9 +106,10 @@ All tools tested successfully. The model correctly selects the right tool based 
 - [x] Run a basic tool-calling demo on laptop
 - [x] Build a tools.json for our experiments
 - [x] Test retrieval with 10 tools — works correctly
-- [ ] Build the lightweight Linux info tool (core app)
+- [x] Build the core Linux info tool with 16 system tools
+- [x] Build GTK4 desktop app with search bar + quick buttons
+- [x] Add in-app sudo password dialog for privileged tools
 - [ ] Add multi-tool call support (chain multiple tools per query)
-- [ ] Add system info tools: battery, trash size, temp, disk health, etc.
 - [ ] Download binary for target platform
 - [ ] Test on Android via Termux
 - [ ] Explore custom tool integration
