@@ -59,7 +59,22 @@ pub fn battery_status() -> String {
     let status = run("cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -1 || echo 'No battery'");
     let pct = run("cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1 || echo 'N/A'");
     let health = run("cat /sys/class/power_supply/BAT*/health 2>/dev/null | head -1 || echo 'N/A'");
-    format!("Status: {} | Level: {}% | Health: {}", status, pct, health)
+    let full = run("cat /sys/class/power_supply/BAT*/charge_full 2>/dev/null | head -1 || cat /sys/class/power_supply/BAT*/energy_full 2>/dev/null | head -1 || echo 0");
+    let design = run("cat /sys/class/power_supply/BAT*/charge_full_design 2>/dev/null | head -1 || cat /sys/class/power_supply/BAT*/energy_full_design 2>/dev/null | head -1 || echo 0");
+    let cycles = run("cat /sys/class/power_supply/BAT*/cycle_count 2>/dev/null | head -1 || echo N/A");
+    let now = run("cat /sys/class/power_supply/BAT*/charge_now 2>/dev/null | head -1 || cat /sys/class/power_supply/BAT*/energy_now 2>/dev/null | head -1 || echo N/A");
+    let manufacturer = run("cat /sys/class/power_supply/BAT*/manufacturer 2>/dev/null | head -1 || echo Unknown");
+    let model = run("cat /sys/class/power_supply/BAT*/model_name 2>/dev/null | head -1 || echo Unknown");
+
+    let wear = if let (Ok(f), Ok(d)) = (full.trim().parse::<f32>(), design.trim().parse::<f32>()) {
+        if d > 0.0 { format!("{:.0}%", f / d * 100.0) } else { "N/A".to_string() }
+    } else { "N/A".to_string() };
+
+    format!(
+        "Battery: {} {} | Level: {}% | Status: {} | Health: {} (Wear: {})\nDesign: {} | Current Max: {} | Now: {}\nCycles: {} | Reported Health: {}",
+        manufacturer.trim(), model.trim(), pct.trim(), status.trim(), wear, wear,
+        design.trim(), full.trim(), now.trim(), cycles.trim(), health.trim()
+    )
 }
 
 pub fn trash_size() -> String {
@@ -102,27 +117,71 @@ pub fn disk_usage() -> String {
 }
 
 pub fn disk_health() -> String {
-    // Use pkexec for GUI auth (handles fingerprint correctly on Fedora)
-    // Fallback to sudo if pkexec not available
-    let out = run("pkexec smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'");
-    if !out.is_empty() && !out.contains("Error") && !out.contains("not authorized") {
-        return format!("Disk Health: {}", out);
+    // Try pkexec or sudo -n, show full SMART data
+    let dev = if std::path::Path::new("/dev/nvme0n1").exists() { "/dev/nvme0n1" } else { "/dev/sda" };
+
+    // Helper to run smartctl with auth (prefer sudo -n if cached, else pkexec)
+    let run_smart = |args: &str| -> String {
+        let cached = *SUDO_CACHED.lock().unwrap();
+        if cached {
+            let out = run(&format!("sudo -n smartctl {} {} 2>/dev/null", args, dev));
+            if !out.is_empty() && !out.contains("not authorized") { return out; }
+            let out2 = run_sudo(&format!("smartctl {} {} 2>/dev/null", args, dev));
+            if !out2.contains("Sudo not") && !out2.is_empty() { return out2; }
+        }
+        let out3 = run(&format!("sudo -n smartctl {} {} 2>/dev/null", args, dev));
+        if !out3.is_empty() && !out3.contains("not authorized") { return out3; }
+        let cmd_pkexec = format!("pkexec smartctl {} {} 2>/dev/null", args, dev);
+        let out4 = run(&cmd_pkexec);
+        if !out4.is_empty() && !out4.contains("not authorized") { return out4; }
+        out4
+    };
+
+    let info = run_smart("-i");
+    let health = run_smart("-H | grep -i 'overall\\|result'");
+    let smart = run_smart("-A");
+
+    if health.contains("not authorized") || health.contains("Sudo not") || health.is_empty() {
+        return "Disk Health: Authentication required (pkexec dialog dismissed) or SMART not available".to_string();
     }
-    let out2 = run("pkexec smartctl -H /dev/nvme0n1 2>/dev/null | grep -i 'overall'");
-    if !out2.is_empty() && !out2.contains("Error") && !out2.contains("not authorized") {
-        return format!("Disk Health: {}", out2);
+
+    let mut out = String::new();
+    if !info.is_empty() {
+        // Extract key lines from info
+        for line in info.lines() {
+            let l = line.trim();
+            if l.starts_with("Model Number") || l.starts_with("Serial Number") || l.starts_with("Firmware Version") || l.starts_with("Namespace 1 Size") {
+                out.push_str(l);
+                out.push('\n');
+            }
+        }
     }
-    // Fallback: try sudo if pkexec dismissed
-    let cached = *SUDO_CACHED.lock().unwrap();
-    if !cached {
-        // Try without auth first
-        let s = run("sudo -n smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'");
-        if !s.is_empty() { return format!("Disk Health: {}", s); }
-        return "Disk Health: Authentication dismissed or SMART not available".to_string();
+    if !health.is_empty() {
+        out.push_str(&format!("\nHealth: {}\n", health.trim()));
     }
-    let out3 = run_sudo("smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'");
-    if !out3.is_empty() { return format!("Disk Health: {}", out3); }
-    "SMART not available".to_string()
+    if !smart.is_empty() {
+        // Parse NVMe SMART fields
+        for line in smart.lines() {
+            let l = line.trim();
+            if l.starts_with("Temperature:") || l.starts_with("Percentage Used") || l.starts_with("Power On Hours") || l.starts_with("Power Cycles") || l.starts_with("Available Spare") || l.starts_with("Data Units") || l.starts_with("Media and") {
+                out.push_str(l);
+                out.push('\n');
+            }
+        }
+        // If not NVMe, include SATA attributes
+        if out.lines().count() < 5 {
+            out.push_str("\n--- SMART Attributes ---\n");
+            for line in smart.lines().take(20) {
+                out.push_str(line);
+                out.push('\n');
+            }
+        }
+    }
+    if out.trim().is_empty() {
+        "SMART not available".to_string()
+    } else {
+        out.trim().to_string()
+    }
 }
 
 pub fn network_info() -> String {
