@@ -264,6 +264,14 @@ chmod +x src-tauri/binaries/needle-x86_64-unknown-linux-gnu
 - If model returns no `function_calls` (e.g. “what time is it” with 17 tools, conf 0.79), app shows real `No tool found` with model’s own confidence/reasoning, no fake.
 - All 17 tools remain real `sh -c` commands, no mocked data.
 
+### Optimization (2026-08-30) — Less Footprint
+
+- **Before:** `Command::new("needle")` per query → loads 14MB model each time → **451ms avg** (1004ms cold), 22-23MB per process, spawn overhead
+- **After:** `libloading` FFI to `libneedle.so` (14MB) via `once_cell` → **90-300ms** (first 297ms, second 89ms without reset, 300-400ms with reset), **27MB RAM persistent** (one load, stays in process)
+- No reload: `Once` init + `needle_reset()` before each query keeps model in RAM, no `tools.idx` re-parse per query
+- Less footprint: one 14MB lib in RAM vs new 15MB process per query; `libneedle.so` from `~/.cache/cactus-needle/2.0.3/` or `src-tauri/binaries/libneedle.so`
+- `cargo check` 0.38s, `prefill_tps` 500-900, `decode` 150-300 stays same
+
 ---
 
 *This devlog will be updated as the project progresses.*
