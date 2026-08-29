@@ -3,6 +3,22 @@ import subprocess
 import needle
 
 
+_sudo_cached = False
+
+
+def check_sudo():
+    """Check if sudo is cached."""
+    global _sudo_cached
+    try:
+        result = subprocess.run(
+            ["sudo", "-n", "true"], capture_output=True, timeout=5
+        )
+        _sudo_cached = result.returncode == 0
+    except Exception:
+        _sudo_cached = False
+    return _sudo_cached
+
+
 def _run(cmd):
     """Run a command and return stripped output."""
     try:
@@ -70,10 +86,12 @@ def disk_usage():
 @needle.tool
 def disk_health():
     """Get disk health via S.M.A.R.T. status."""
+    if not _sudo_cached:
+        return "Sudo not authenticated. Run 'sudo true' in terminal first, then restart app."
     out = _run("sudo smartctl -H /dev/sda 2>/dev/null | grep -i 'overall'")
     if not out or "Error" in out:
-        out = _run("smartctl -H /dev/nvme0n1 2>/dev/null | grep -i 'overall'")
-    return f"Disk Health: {out}" if out else "SMART not available (try running with sudo)"
+        out = _run("sudo smartctl -H /dev/nvme0n1 2>/dev/null | grep -i 'overall'")
+    return f"Disk Health: {out}" if out else "SMART not available"
 
 
 @needle.tool

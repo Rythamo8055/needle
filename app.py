@@ -3,6 +3,7 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GLib
 import threading
 import needle_core
+import tools
 
 
 class NeedleApp(Gtk.Application):
@@ -59,9 +60,25 @@ class NeedleApp(Gtk.Application):
 
         win.present()
 
+        # Check sudo in background
+        threading.Thread(target=self._check_sudo, daemon=True).start()
+
     def on_quick_button(self, button, query):
         self.entry.set_text(query)
         self.on_search(self.entry)
+
+    def _check_sudo(self):
+        has_sudo = tools.check_sudo()
+        if not has_sudo:
+            GLib.idle_add(self._sudo_prompt)
+
+    def _sudo_prompt(self):
+        dialog = Gtk.AlertDialog()
+        dialog.set_message("Sudo Access Needed")
+        dialog.set_detail("Some tools need sudo. Run 'sudo true' in a terminal to cache your password, then restart the app.")
+        dialog.set_buttons(["OK"])
+        dialog.show(self.get_active_window())
+        return False
 
     def on_search(self, entry):
         query = entry.get_text().strip()
