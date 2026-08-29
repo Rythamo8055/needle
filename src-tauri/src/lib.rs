@@ -65,20 +65,10 @@ fn set_sudo(password: String) -> bool {
 fn list_tools() -> Vec<String> {
     vec![
         "battery_status".to_string(),
-        "trash_size".to_string(),
-        "cpu_temperature".to_string(),
-        "cpu_info".to_string(),
-        "memory_usage".to_string(),
-        "disk_usage".to_string(),
         "disk_health".to_string(),
-        "network_info".to_string(),
-        "top_processes".to_string(),
-        "process_count".to_string(),
+        "disk_usage".to_string(),
         "uptime_info".to_string(),
         "hostname_info".to_string(),
-        "gpu_info".to_string(),
-        "brightness".to_string(),
-        "list_files".to_string(),
         "system_info".to_string(),
         "get_time".to_string(),
     ]

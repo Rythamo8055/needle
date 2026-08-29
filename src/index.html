@@ -9,34 +9,29 @@
   </head>
   <body>
     <header>
-      <h1>Needle <span>— 45M param system assistant</span></h1>
-      <p class="subtitle">Ask in plain English · 16 tools · 28MB RAM</p>
+      <h1>Needle <span>— DevOps Helper · 45M · 7 tools</span></h1>
+      <p class="subtitle">Ask in plain English · FFI 90ms · 27MB RAM</p>
     </header>
 
     <div class="search-row">
-      <input id="query" type="text" placeholder="Ask about your system… e.g. 'battery health', 'trash size', 'cpu temperature and memory'" />
+      <input id="query" type="text" placeholder="e.g. 'battery health', 'disk health', 'uptime'" />
       <button id="ask-btn">Ask</button>
     </div>
 
     <div class="quick">
-      <button data-q="battery status">Battery</button>
-      <button data-q="trash size">Trash</button>
-      <button data-q="cpu temperature">CPU Temp</button>
-      <button data-q="memory usage">Memory</button>
-      <button data-q="disk usage">Disk</button>
+      <button data-q="battery health">Battery</button>
       <button data-q="disk health">Disk Health</button>
-      <button data-q="network info">Network</button>
-      <button data-q="top processes">Top Procs</button>
+      <button data-q="disk usage">Disk Usage</button>
       <button data-q="uptime">Uptime</button>
-      <button data-q="gpu info">GPU</button>
-      <button data-q="list files in .">Files</button>
-      <button data-q="what time is it">Time</button>
+      <button data-q="hostname">Hostname</button>
+      <button data-q="system info">System</button>
+      <button data-q="get the time">Time</button>
     </div>
 
-    <div id="status" class="status">Ready · 16 tools available</div>
+    <div id="status" class="status">Ready · 7 tools · pure model</div>
 
     <div id="result" class="result">
-      <div class="placeholder">Try “battery health” or “trash size and cpu temperature”</div>
+      <div class="placeholder">Try “battery health” or “disk health”</div>
     </div>
 
     <!-- Sudo modal -->

@@ -17,7 +17,7 @@ async function doAsk(query) {
   resultEl.innerHTML = '<div class="placeholder">Running…</div>';
   try {
     const res = await invoke("ask", { query });
-    if (res.results[0] === "NEED_SUDO") {
+    if (res.results[0] === "NEED_SUDO" || res.results[0].includes("Authentication required")) {
       pendingQuery = query;
       showSudo();
       resultEl.innerHTML = '<div class="placeholder">Sudo required — enter password</div>';
@@ -107,5 +107,5 @@ modal.addEventListener("click", (e) => {
 
 // Init
 invoke("check_sudo").then((ok) => {
-  statusEl.textContent = ok ? "Ready · sudo cached · 17 tools" : "Ready · 17 tools (disk health needs sudo)";
+  statusEl.textContent = ok ? "Ready · sudo cached · 7 tools · FFI 90ms" : "Ready · 7 tools (disk health needs pkexec)";
 });

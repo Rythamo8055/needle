@@ -1,93 +1,37 @@
 [
   {
     "name": "battery_status",
-    "description": "Get battery status, percentage, and health with wear level and cycle count",
-    "parameters": []
-  },
-  {
-    "name": "trash_size",
-    "description": "Get the size of files in trash",
-    "parameters": []
-  },
-  {
-    "name": "cpu_temperature",
-    "description": "Get CPU temperature",
-    "parameters": []
-  },
-  {
-    "name": "cpu_info",
-    "description": "Get CPU model, cores, and load average",
-    "parameters": []
-  },
-  {
-    "name": "memory_usage",
-    "description": "Get RAM and swap usage",
-    "parameters": []
-  },
-  {
-    "name": "disk_usage",
-    "description": "Get disk usage for all mounted filesystems",
+    "description": "Battery health and charge. Returns wear level, cycle count, percentage, status. Use for battery, charge, power, wear.",
     "parameters": []
   },
   {
     "name": "disk_health",
-    "description": "Get disk health via S.M.A.R.T. status with full details",
+    "description": "Disk SMART health. Returns model, health PASSED/FAILED, temperature, percentage used, hours. Requires pkexec. Use for disk health, SMART, NVMe.",
     "parameters": []
   },
   {
-    "name": "network_info",
-    "description": "Get network interfaces and traffic",
-    "parameters": []
-  },
-  {
-    "name": "top_processes",
-    "description": "Get top 5 processes by CPU and memory usage",
-    "parameters": []
-  },
-  {
-    "name": "process_count",
-    "description": "Get the number of running processes",
+    "name": "disk_usage",
+    "description": "Disk usage. Returns df -h for mounted filesystems. Use for disk usage, free space, storage, partition.",
     "parameters": []
   },
   {
     "name": "uptime_info",
-    "description": "Get system uptime and boot time",
+    "description": "System uptime. Returns uptime -p and boot time. Use for uptime, boot time, how long running.",
     "parameters": []
   },
   {
     "name": "hostname_info",
-    "description": "Get system hostname and kernel version",
+    "description": "Host identity. Returns hostname, kernel version, distro. Use for hostname, host, kernel, distro, OS.",
     "parameters": []
-  },
-  {
-    "name": "gpu_info",
-    "description": "Get GPU information",
-    "parameters": []
-  },
-  {
-    "name": "brightness",
-    "description": "Get screen brightness",
-    "parameters": []
-  },
-  {
-    "name": "list_files",
-    "description": "List files in a directory. Use when user asks to list files, show directory contents, or 'ls'",
-    "parameters": [
-      {
-        "name": "path",
-        "type": "string",
-        "description": "Directory path to list, e.g. '.' or '/tmp'"
-      }
-    ]
   },
   {
     "name": "system_info",
-    "description": "Get full system information including kernel and OS details",
+    "description": "Kernel system data. Returns uname -a. Use for system info, uname, kernel details.",
     "parameters": []
   },
   {
     "name": "get_time",
-    "description": "Get the current local date and time. Use when user asks what time is it, current time, or date",
+    "description": "Current date and time. Returns YYYY-MM-DD HH:MM:SS. Use for time, date, clock, what time is it.",
     "parameters": []
   }
 ]

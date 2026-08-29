@@ -58,30 +58,13 @@ pub fn route(query: &str) -> Vec<ToolResult> {
         return vec![];
     }
     let mut results = Vec::new();
-    for (name, args) in calls {
+    for (name, _args) in calls {
         let output = match name.as_str() {
             "battery_status" => tools::battery_status(),
-            "trash_size" => tools::trash_size(),
-            "cpu_temperature" => tools::cpu_temperature(),
-            "cpu_info" => tools::cpu_info(),
-            "memory_usage" => tools::memory_usage(),
-            "disk_usage" => tools::disk_usage(),
             "disk_health" => tools::disk_health(),
-            "network_info" => tools::network_info(),
-            "top_processes" => tools::top_processes(),
-            "process_count" => tools::process_count(),
+            "disk_usage" => tools::disk_usage(),
             "uptime_info" => tools::uptime_info(),
             "hostname_info" => tools::hostname_info(),
-            "gpu_info" => tools::gpu_info(),
-            "brightness" => tools::brightness(),
-            "list_files" => {
-                let path = args.get("path").and_then(|p| p.as_str()).unwrap_or(".");
-                let path = match path {
-                    "current_directory" | "current dir" | "here" => ".",
-                    _ => path,
-                };
-                tools::list_files(path)
-            }
             "system_info" => tools::system_info(),
             "get_time" => tools::get_time(),
             _ => continue,

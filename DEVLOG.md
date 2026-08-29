@@ -1,6 +1,6 @@
-# Needle 2 — Devlog
+# Needle 2 — Master Devlog
 
-> A tiny 45M parameter agentic LLM that runs locally on phones, Raspberry Pis, and edge devices.
+> Tiny 45M agentic LLM — 3 apps in `apps/`: `phone-doctor` | `field-service` | `devops-helper` (live at root). Each has its own `DEVLOG.md`.
 
 ---
 
