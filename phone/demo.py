@@ -32,7 +32,7 @@ def set_volume(level: int):
     return f"Volume set to {level}%"
 
 
-agent = needle.Agent(tools=[text_to_speech, battery_status, vibrate, set_volume])
+agent = needle.Needle(tools=[text_to_speech, battery_status, vibrate, set_volume])
 
 prompt = sys.argv[1] if len(sys.argv) > 1 else input("Ask: ")
 response = agent.run(prompt)

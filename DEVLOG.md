@@ -53,9 +53,9 @@ def get_time():
     """Get the current local date and time."""
     return dt.now().strftime("%Y-%m-%d %H:%M:%S")
 
-agent = needle.Agent(tools=[get_time])
+agent = needle.Needle(tools=[get_time])
 response = agent.run(input("Ask: "))
-print(response.result)
+print(response)
 ```
 
 **Option 2 — Binary directly (for edge devices)**
@@ -71,12 +71,24 @@ print(response.result)
 - [x] Researched Needle 2 capabilities and use cases
 - [x] Created GitHub repo
 - [x] Initialized devlog
-- [ ] Set up local dev environment with `cactus-needle`
-- [ ] Run a basic tool-calling demo on laptop
+- [x] Set up local dev environment with `cactus-needle`
+- [x] Run a basic tool-calling demo on laptop
+- [x] Build a tools.json for our experiments
 - [ ] Download binary for target platform
-- [ ] Build a tools.json for our experiments
 - [ ] Test on Android via Termux
 - [ ] Explore custom tool integration
+
+### Laptop Demo Results (2026-08-30)
+
+All tools tested successfully. The model correctly selects the right tool based on the prompt.
+
+| Prompt | Tool Called | Result |
+|---|---|---|
+| "what time is it" | `get_time` | `2026-08-30 00:07:24` |
+| "how much disk space do I have" | `disk_usage` | `Total: 342GB \| Used: 38GB \| Free: 302GB` |
+| "what is my memory usage" | `memory_usage` | `Total: 15662MB \| Used: 5759MB \| Available: 9903MB` |
+
+**Performance:** ~160-240 decode TPS, peak RAM ~47-106 MB. Tool selection confidence varies (0.27-0.65) but accuracy is 100%.
 
 ### Decisions
 

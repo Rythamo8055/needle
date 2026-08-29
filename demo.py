@@ -35,6 +35,6 @@ def list_files(path: str):
     return "\n".join(entries)
 
 
-agent = needle.Agent(tools=[get_time, disk_usage, memory_usage, list_files])
+agent = needle.Needle(tools=[get_time, disk_usage, memory_usage, list_files])
 response = agent.run(input("Ask: "))
-print(response.result)
+print(response)
