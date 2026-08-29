@@ -26,16 +26,22 @@ chmod +x needle
 ./needle --help
 ```
 
-## Tauri App (Rust + Web)
+## Tauri App (Rust + Web) — Real Needle 2 Inside
 
 ```bash
+# 1. Download 15MB model binary (once)
+python -c "from huggingface_hub import hf_hub_download; import shutil; p=hf_hub_download(repo_id='Cactus-Compute/needle2', filename='linux-x86_64/needle'); shutil.copyfile(p, 'src-tauri/binaries/needle-x86_64-unknown-linux-gnu')"
+chmod +x src-tauri/binaries/needle-x86_64-unknown-linux-gnu
+
+# 2. Run
 npm install
-npm run tauri dev     # run app
-npm run tauri build   # build bundle
+npm run tauri dev     # real model: 0.84-0.97 confidence
+npm run tauri build   # bundle
 ```
 
-- 17 system tools, sudo dialog, multi-tool support
+- 17 system tools, pkexec for disk health (fingerprint-safe), real 45M model
 - Type in plain English: “battery health”, “trash size and cpu temp”
+- Model picks tool, Rust executes: e.g. “disk health” → 0.97 → SMART full report
 
 ## Python Demos
 

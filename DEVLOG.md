@@ -218,11 +218,45 @@ npm run tauri build    # production bundle
 ### Next Steps
 
 - [x] Show real health (wear, SMART details) — done
-- [ ] Replace keyword router with real Needle 2 binary sidecar
-- [ ] Add 14MB needle binary to `src-tauri/binaries/`
+- [x] Replace keyword router with real Needle 2 binary sidecar — done (2026-08-30)
+- [x] Download 15MB needle binary to `src-tauri/binaries/` — done
 - [ ] Test multi-tool: “battery and trash size”
 - [ ] Package for Linux (.deb/.AppImage)
 - [ ] Test on Android via `npm run tauri android dev`
+
+---
+
+## Entry 2 — 2026-08-30 — Real Needle 2 Integration
+
+**Status:** Done — Model now live in Tauri
+
+### What Changed
+
+- Downloaded `linux-x86_64/needle` (15MB, 14MB compressed) from `Cactus-Compute/needle2` to `src-tauri/binaries/needle-x86_64-unknown-linux-gnu`
+- Created `src-tauri/tools.json` (17 tools) for binary
+- Rewrote `src-tauri/src/needle.rs` to call binary via `Command::new(bin) --tools tools.json --tool-index tools.idx --prompt query`
+- Parse `function_calls`, `confidence`, `reasoning` from JSON, execute matching Rust tool
+- Fallback to keyword router if binary missing or returns empty (e.g. “what time is it” edge case)
+
+### Real Model Results (binary, 17 tools)
+
+| Prompt | Tool | Confidence | Reasoning |
+|---|---|---|---|
+| “what is my battery health” | `battery_status` | 0.84 | Query asks for battery health |
+| “how much trash” | `trash_size` | 0.84 | Query asks for trash size |
+| “cpu temperature” | `cpu_temperature` | 0.80 | Maps to get_cpu_temperature |
+| “disk health” | `disk_health` | 0.97 | -> disk_health tool |
+| “get the time” | `get_time` | 0.97 | Query asks for time info |
+| “list files in /tmp” | `list_files` | 0.49 | `{"path":"/tmp"}` |
+
+Fallback handles “what time is it” (keyword) when model returns empty.
+
+### Download for New Clone
+
+```bash
+python -c "from huggingface_hub import hf_hub_download; import shutil; p=hf_hub_download(repo_id='Cactus-Compute/needle2', filename='linux-x86_64/needle'); shutil.copyfile(p, 'src-tauri/binaries/needle-x86_64-unknown-linux-gnu')"
+chmod +x src-tauri/binaries/needle-x86_64-unknown-linux-gnu
+```
 
 ---
 
